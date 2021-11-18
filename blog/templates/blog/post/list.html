@@ -1,7 +1,7 @@
 {% extends 'blog/base.html' %} {% block title %}My Blog{% endblock title %} 
 
 {% block content %} 
-{% for post in posts %}
+{% for post in page %}
 <article>
     <h2>
         <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
@@ -9,5 +9,22 @@
     <p>date : {{ post.publish }} by {{ post.author }}</p>
     <p>{{ post.body|truncatewords:30|linebreaks }}</p>
 </article>
+
 {% endfor %}
+<footer>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          {% if page.has_previous %}
+          <li class="page-item"><a class="page-link" href="{% url 'blog:post_list' %}?page={{page.previous_page_number}}">Previous</a></li>
+          {% endif %}
+          <li class="page-item active"><a class="page-link" href="#">{{page.number}}</a></li>
+          {% if page.has_next%}
+          <li class="page-item"><a class="page-link" href="{% url 'blog:post_list' %}?page={{page.next_page_number}}">Next</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    aaaa:{{page}}
+    <br>
+    bbbbb:{{page.has_next}}
+</footer>
 {% endblock content %}

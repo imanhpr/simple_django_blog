@@ -26,14 +26,11 @@
     {% endfor %}
 </div>
 
-{% if new_comment %}
-    <h2>Your Comment Add!</h2>
-{% else %}
-    <h2>Add new comment</h2>
-    <form method="POST">
-        {{comment_form.as_p}}
-        {% csrf_token %}
-        <input class="btn btn-primary" type="submit" value="Add comment">
-    </form>
-{% endif %}
+<h2>Add new comment</h2>
+<form method="POST">
+    {{comment_form.as_p}}
+    {% csrf_token %}
+    <input class="btn btn-primary" type="submit" value="Add comment">
+</form>
+
 {% endblock content %}

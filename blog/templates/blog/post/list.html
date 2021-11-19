@@ -1,6 +1,9 @@
 {% extends 'blog/base.html' %} {% block title %}My Blog{% endblock title %} 
 
 {% block content %} 
+{% if tag %}
+<h2>post with tag {{ tag.name}}</h2>
+{% endif %}
 {% for post in posts %}
 <article>
     <h2>
@@ -8,10 +11,15 @@
     </h2>
     <p>date : {{ post.publish }} by {{ post.author }}</p>
     <p>{{ post.body|truncatewords:30|linebreaks }}</p>
+    <h3>Tags :</h3>
+    {% for tag in post.tags.all %}
+    <span class=""><a href="{% url 'blog:post_list_by_tag' tag_slug=tag.slug%}">{{tag.name}}</a></span>
+    {% empty %}
+    <p class="">this post dosnt tag</p>
+    {% endfor%}
 </article>
-
-{% endfor %}
+<br> {% endfor %}
 <footer>
-{% include 'blog/pagination.html' with page=posts %}
+    {% include 'blog/pagination.html' with page=posts %}
 </footer>
 {% endblock content %}

@@ -7,17 +7,21 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls.base import reverse
 
+from taggit.models import Tag
+
 from blog.forms import CommentForm, EmailPostForm
 from blog.models import Comment, Post
 
 SlugType = NewType("SlugType", str)
 
 
-def post_list(request: HttpRequest) -> HttpResponse:
+def post_list(request: HttpRequest , tag_slug = None) -> HttpResponse:
     objects = Post.published_manager.all()
-    print(len(objects))
+    tag = None
+    if tag_slug:
+        tag = get_object_or_404(Tag , slug=tag_slug)
+        objects = objects.filter(tags__in=[tag])
     paginator = Paginator(object_list=objects, per_page=1)
-
     page_number = request.GET.get("page")
     try:
         posts = paginator.page(page_number)
@@ -26,11 +30,12 @@ def post_list(request: HttpRequest) -> HttpResponse:
         posts = paginator.page(1)
     except EmptyPage:
         posts = paginator.page(paginator.num_pages)
-
+    
+    
     return render(
         request=request,
         template_name="blog/post/list.html",
-        context={"posts": posts},
+        context={"posts": posts , 'tag':tag},
     )
 
 

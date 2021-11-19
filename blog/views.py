@@ -26,7 +26,7 @@ def post_list(request: HttpRequest) -> HttpResponse:
     return render(
         request=request,
         template_name="blog/post/list.html",
-        context={"page": posts},
+        context={"posts": posts},
     )
 
 

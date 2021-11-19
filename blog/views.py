@@ -4,6 +4,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
+from blog.forms import EmailPostForm
 from blog.models import Post
 
 SlugType = NewType("SlugType", str)
@@ -13,7 +14,7 @@ def post_list(request: HttpRequest) -> HttpResponse:
     objects = Post.published_manager.all()
     print(len(objects))
     paginator = Paginator(object_list=objects, per_page=1)
-    
+
     page_number = request.GET.get("page")
     try:
         posts = paginator.page(page_number)
@@ -40,3 +41,25 @@ def post_detail(request: HttpRequest, year: int, month: int, day: int, post: Slu
         publish__day=day,
     )
     return render(request, "blog/post/detail.html", {"post": post})
+
+
+def post_share(request: HttpRequest, post_id: int):
+    post = get_object_or_404(Post, pk=post_id, status="published")
+    if request.method == "POST":
+        form = EmailPostForm(data=request.POST)
+        if form.is_valid():
+            clean_data = form.cleaned_data
+            # send mail
+        else:
+            print(form.errors)
+    else:
+        form = EmailPostForm()
+
+    return render(
+        request,
+        "blog/post/share.html",
+        {
+            "post": post,
+            "form": form,
+        },
+    )

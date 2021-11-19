@@ -5,8 +5,8 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
-from blog.forms import EmailPostForm
-from blog.models import Post
+from blog.forms import EmailPostForm, CommentForm
+from blog.models import Post, Comment
 
 SlugType = NewType("SlugType", str)
 
@@ -41,7 +41,26 @@ def post_detail(request: HttpRequest, year: int, month: int, day: int, post: Slu
         publish__month=month,
         publish__day=day,
     )
-    return render(request, "blog/post/detail.html", {"post": post})
+    comments = post.comments.filter(active=True)
+    new_comment = None
+    if request.method == "POST":
+        comments_form = CommentForm(data=request.POST)
+        if comments_form.is_valid():
+            new_comment = comments_form.save(commit=False)
+            new_comment.post = post
+            new_comment.save()
+    else :
+        comments_form = CommentForm()
+    return render(
+        request,
+        "blog/post/detail.html",
+        {
+            "post": post,
+            "comments": comments,
+            "new_comment": new_comment,
+            "comment_form": comments_form,
+        },
+    )
 
 
 def post_share(request: HttpRequest, post_id: int):
@@ -75,6 +94,6 @@ def post_share(request: HttpRequest, post_id: int):
         {
             "post": post,
             "form": form,
-            "sent" : sent,
+            "sent": sent,
         },
     )

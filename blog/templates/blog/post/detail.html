@@ -5,4 +5,7 @@
 <h1>{{ post.title }}</h1>
 <p>date : {{ post.publish }} by {{ post.author }}</p>
 <p>{{ post.body|linebreaks }}</p>
+<p>
+    <a href="{% url 'blog:post_share' post.pk %}">Share this post</a>
+</p>
 {% endblock content %}

@@ -1,5 +1,6 @@
 from typing import NewType
 
+from django.core.mail import send_mail
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -45,11 +46,24 @@ def post_detail(request: HttpRequest, year: int, month: int, day: int, post: Slu
 
 def post_share(request: HttpRequest, post_id: int):
     post = get_object_or_404(Post, pk=post_id, status="published")
+    sent = False
+
     if request.method == "POST":
         form = EmailPostForm(data=request.POST)
         if form.is_valid():
             clean_data = form.cleaned_data
-            # send mail
+            post_url = request.build_absolute_uri(post.get_absolute_url())
+            subject = f"{clean_data['name']} recommends you read {post.title}"
+            message = f"""
+            Read {post.title} at { post_url }\n\n{clean_data['name']}'s comments: {clean_data['comments']}
+            """
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email="Test@djangoBlog.com",
+                recipient_list=[clean_data["to"]],
+            )
+            sent = True
         else:
             print(form.errors)
     else:
@@ -61,5 +75,6 @@ def post_share(request: HttpRequest, post_id: int):
         {
             "post": post,
             "form": form,
+            "sent" : sent,
         },
     )
